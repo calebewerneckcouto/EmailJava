@@ -27,8 +27,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class ObjetoEnviaEmail {
 	
-	private String userName = "calebewerneck@gmail.com";
-	private String senha= "nbyflsubgajyvqad";
+	private String userName = "";
+	private String senha= "";
 	
 	private String listaDestinatarios = "";
 	private String nomeRemetente = "";
