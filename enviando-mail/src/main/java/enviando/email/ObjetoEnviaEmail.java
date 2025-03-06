@@ -50,7 +50,7 @@ public class ObjetoEnviaEmail {
 		properties.put("mail.smtp.auth", "true");/*Autorização*/
 		properties.put("mail.smtp.starttls", "true"); /*Autenticação*/
 		properties.put("mail.smtp.host", "smtp.gmail.com"); /*Sercidor gmail Google*/
-		properties.put("mail.smtp.port", "465");/*Porta do servidor*/
+		properties.put("mail.smtp.port", "467");/*Porta do servidor*/
 		properties.put("mail.smtp.socketFactory.port", "587");/*Expecifica a porta a ser conectada pelo socket*/
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");/*Classe socket de conexão ao SMTP*/
 		
@@ -68,6 +68,8 @@ public class ObjetoEnviaEmail {
 		message.setFrom(new InternetAddress(userName, nomeRemetente)); /*Quem está enviano*/
 		message.setRecipients(Message.RecipientType.TO, toUser);/*Email de destino*/
 		message.setSubject(assuntoEmail);/*Assunto do e-mail*/
+		
+		message.setReplyTo(InternetAddress.parse("calebewerneck@gmail.com"));
 		
 		
 		if (envioHtml) {
@@ -108,6 +110,8 @@ public class ObjetoEnviaEmail {
 	    message.setFrom(new InternetAddress(userName, nomeRemetente)); // Remetente
 	    message.setRecipients(Message.RecipientType.TO, toUser); // Destinatários
 	    message.setSubject(assuntoEmail); // Assunto
+	    
+	    message.setReplyTo(InternetAddress.parse("calebewerneck@gmail.com"));
 
 	    // Corpo do email
 	    MimeBodyPart corpoEmail = new MimeBodyPart();
@@ -135,6 +139,10 @@ public class ObjetoEnviaEmail {
 	    }
 
 	    message.setContent(multipart);
+	    
+	 // Cabeçalhos para evitar que o e-mail vá para o spam
+	    message.addHeader("X-Mailer", "JavaMailer"); // Definir o Mailer para ajudar a evitar spam
+	    message.addHeader("X-Precedence", "bulk"); // Indica e-mail em massa
 
 	    // Enviar o e-mail
 	    Transport.send(message);
