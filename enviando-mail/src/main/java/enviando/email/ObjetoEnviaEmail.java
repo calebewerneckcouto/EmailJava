@@ -27,7 +27,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class ObjetoEnviaEmail {
 	
-	private String userName = "";
+	private String userName = "calebewerneck@gmail.com";
 	private String senha= "";
 	
 	private String listaDestinatarios = "";
@@ -51,7 +51,7 @@ public class ObjetoEnviaEmail {
 		properties.put("mail.smtp.starttls", "true"); /*Autenticação*/
 		properties.put("mail.smtp.host", "smtp.gmail.com"); /*Sercidor gmail Google*/
 		properties.put("mail.smtp.port", "465");/*Porta do servidor*/
-		properties.put("mail.smtp.socketFactory.port", "465");/*Expecifica a porta a ser conectada pelo socket*/
+		properties.put("mail.smtp.socketFactory.port", "587");/*Expecifica a porta a ser conectada pelo socket*/
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");/*Classe socket de conexão ao SMTP*/
 		
 		Session session = Session.getInstance(properties, new Authenticator() {
@@ -83,77 +83,63 @@ public class ObjetoEnviaEmail {
 	
 	
 	
-	public void enviarEmailAnexo(boolean envioHtml) throws Exception{
-	       Properties properties = new Properties();
-			
-			properties.put("mail.smtp.ssl.trust", "*");
-			properties.put("mail.smtp.auth", "true");/*Autorização*/
-			properties.put("mail.smtp.auth", "true");/*Autorização*/
-			properties.put("mail.smtp.starttls", "true"); /*Autenticação*/
-			properties.put("mail.smtp.host", "smtp.gmail.com"); /*Sercidor gmail Google*/
-			properties.put("mail.smtp.port", "465");/*Porta do servidor*/
-			properties.put("mail.smtp.socketFactory.port", "465");/*Expecifica a porta a ser conectada pelo socket*/
-			properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");/*Classe socket de conexão ao SMTP*/
-			
-			Session session = Session.getInstance(properties, new Authenticator() {
-				@Override
-				protected PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication(userName, senha);
-				}
-			});
-			
-			
-			Address[] toUser = InternetAddress.parse(listaDestinatarios);
-			
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(userName, nomeRemetente)); /*Quem está enviano*/
-			message.setRecipients(Message.RecipientType.TO, toUser);/*Email de destino*/
-			message.setSubject(assuntoEmail);/*Assunto do e-mail*/
-			
-			
-			/*Parte 1 do e-mail que é  texto e a descrição do e-mail*/
-			MimeBodyPart corpoEmail = new MimeBodyPart();
-			
-			if (envioHtml) {
-				corpoEmail.setContent(textoEmail, "text/html; charset=utf-8"); 
-			}else {
-				corpoEmail.setText(textoEmail);
-			}
-			
-			
-			List<FileInputStream> arquivos = new ArrayList<FileInputStream>();
-			arquivos.add(simuladorDePDF());/*Certificado*/
-			arquivos.add(simuladorDePDF());/*nota fiscal*/
-			arquivos.add(simuladorDePDF());/*documento texto*/
-			arquivos.add(simuladorDePDF()); /*Imagem*/
-			
-			
-			Multipart multipart = new MimeMultipart();
-			multipart.addBodyPart(corpoEmail);
-			
-			int index = 0;
-			for (FileInputStream fileInputStream : arquivos) {
-				
-				/*Parte 2 do e-mail que são os anexo em pdf*/
-				MimeBodyPart anexoEmail = new MimeBodyPart();
-				
-				/*Onde é passado o simuladorDePDf você passa o seu arquivo gravado no banco e dados*/
-				anexoEmail.setDataHandler(new DataHandler(new ByteArrayDataSource(fileInputStream, "application/pdf")));
-				anexoEmail.setFileName("anexoemail"+index+".pdf");
-				
-				multipart.addBodyPart(anexoEmail);
-				
-				index++;
-			}
-			
-			
-			message.setContent(multipart);
-			
-			Transport.send(message);
-		}
-	
-	
-	
+	public void enviarEmailAnexo(boolean envioHtml) throws Exception {
+	    Properties properties = new Properties();
+
+	    // Configuração para o Gmail com STARTTLS
+	    properties.put("mail.smtp.auth", "true"); // Ativar autenticação
+	    properties.put("mail.smtp.starttls.enable", "true"); // Ativar STARTTLS
+	    properties.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP do Gmail
+	    properties.put("mail.smtp.port", "587"); // Porta para STARTTLS
+	    properties.put("mail.smtp.ssl.trust", "smtp.gmail.com"); // Habilitar SSL/TLS
+	    properties.put("mail.smtp.socketFactory.port", "587"); // Porta para o socket
+	    properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); // Classe de socket
+
+	    Session session = Session.getInstance(properties, new Authenticator() {
+	        @Override
+	        protected PasswordAuthentication getPasswordAuthentication() {
+	            return new PasswordAuthentication(userName, senha); // Usuário e senha
+	        }
+	    });
+
+	    Address[] toUser = InternetAddress.parse(listaDestinatarios);
+
+	    Message message = new MimeMessage(session);
+	    message.setFrom(new InternetAddress(userName, nomeRemetente)); // Remetente
+	    message.setRecipients(Message.RecipientType.TO, toUser); // Destinatários
+	    message.setSubject(assuntoEmail); // Assunto
+
+	    // Corpo do email
+	    MimeBodyPart corpoEmail = new MimeBodyPart();
+	    if (envioHtml) {
+	        corpoEmail.setContent(textoEmail, "text/html; charset=utf-8");
+	    } else {
+	        corpoEmail.setText(textoEmail);
+	    }
+
+	    Multipart multipart = new MimeMultipart();
+	    multipart.addBodyPart(corpoEmail);
+
+	    // Adicionar anexos (Exemplo de PDF)
+	    List<FileInputStream> arquivos = new ArrayList<FileInputStream>();
+	    arquivos.add(simuladorDePDF()); // Simulando anexos (pode ser arquivo real do banco de dados)
+	    arquivos.add(simuladorDePDF()); // Exemplo de mais anexos
+
+	    int index = 0;
+	    for (FileInputStream fileInputStream : arquivos) {
+	        MimeBodyPart anexoEmail = new MimeBodyPart();
+	        anexoEmail.setDataHandler(new DataHandler(new ByteArrayDataSource(fileInputStream, "application/pdf")));
+	        anexoEmail.setFileName("anexoemail" + index + ".pdf");
+	        multipart.addBodyPart(anexoEmail);
+	        index++;
+	    }
+
+	    message.setContent(multipart);
+
+	    // Enviar o e-mail
+	    Transport.send(message);
+	}
+
 	/**
 	 * Esse método simula o PDF ou qualquer arquivo que possa ser enviado por anexo no email.
 	 * Voce pode pegar o arquino no seu banco de dados base64, byte[], Stream de Arquivos.

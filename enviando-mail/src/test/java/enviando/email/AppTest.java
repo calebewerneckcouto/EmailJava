@@ -36,7 +36,7 @@ public class AppTest {
 		stringBuilderTextoEmail.append("<span style=\"font-size:8px\">Ass.: Calebe Werneck Couto</span>");
 		
 		ObjetoEnviaEmail enviaEmail = 
-				new ObjetoEnviaEmail("calebewerneck@gmail.com, calebewerneck@hotmail.com", 
+				new ObjetoEnviaEmail("calebewerneck@yahoo.com, calebewerneck@hotmail.com", 
 								    "Calebe Werneck Couto", 
 								    "Testando e-mail com Java", 
 								    stringBuilderTextoEmail.toString());
